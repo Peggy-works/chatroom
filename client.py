@@ -116,47 +116,7 @@ def userinput(event, chat, user, connection):
             message.REPORT_RESPONSE_FLAG = 0
             #message.
  
-    
-    
-    """
-    user presses enter --> call userInput()
-    I want menu to be popped up
-
-
-    """
-
-    """
-
-    if user.get_state() == 'normal': 
-        chat.text.configure(state='normal')
-        chat.text.insert(chat.counter.get_counter(), f'Your choice: {input}\n')
-        chat.text.configure(state='disabled')
-        entrybox.delete(0, 'end')
-        chat.counter.increment()
-        if input == 1:
-            chat.text.configure(state='normal')
-            chat.text.insert(chat.counter.get_counter(), f'Please enter a username: {input}\n')
-            chat.text.configure(state='disabled')
-            entrybox.delete(0, 'end')
-            chat.counter.increment()
-        if input == 2:
-            chat.text.configure(state='normal')
-            chat.text.insert(chat.counter.get_counter(), f'Your choice: {input}\n')
-            chat.text.configure(state='disabled')
-            entrybox.delete(0, 'end')
-            chat.counter.increment()
-        if input == 3: #[20:36:06]  
-            #1. if input is 3
-            #2. need to connect
-            #3. need to error check if username is used 
-            chat.text.configure(state='joined')
-            chat.text.insert(chat.counter.get_counter(), f'{datetime.now().strftime("%I:%M:%p")}: {input}\n')
-            chat.text.configure(state='disabled')
-            entrybox.delete(0, 'end')
-            chat.counter.increment()
-    elif user.get_state == 'joined':
-        pass
-    """
+     
     
     
 
