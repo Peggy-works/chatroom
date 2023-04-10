@@ -1,18 +1,14 @@
-from datetime import datetime
-from socket import *
- 
-serverPort = 12000
-serverName = 'localhost'
-serverSocket = socket(AF_INET, SOCK_STREAM)
-serverSocket.bind((serverName, serverPort))
-serverSocket.listen(1)
-print("The server is ready to recieve")
-while True:
-    connectionSocket, addr = serverSocket.accept()
-    sentence = connectionSocket.recv(1024).decode()
-    capitalizedSentence = sentence.upper()
-    connectionSocket.send(capitalizedSentence.encode())
-    connectionSocket.close()
-    print("server close")
+import tkinter as tk
+from tkinter import ttk
 
+class GUI:
+    def __init__(self, root):
+        self.master = root
+        self.master.title("Weather App")
+        
+        pass
 
+if __name__ == "__main__":
+    root = tk.Tk()
+    user_interface = GUI(root)
+    root.mainloop()
