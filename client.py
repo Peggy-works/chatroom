@@ -50,12 +50,21 @@ def connection():
             
             # Setting message, pickling, sending
             message.set(0, 0, 1, 0, 0, 1, 0, 0, 0, 0, username, "", 0, 0) 
+            
             data_send = pickle.dumps(message)
+            print(f'Size of message object: {sys.getsizeof(data_send)}')
             clientSocket.send(data_send)
 
-            # Server Response
-            response = clientSocket.recv(1024)
-            data_response = pickle.loads(response)
+            # Wait for server Response
+            waiting = True
+            while waiting:
+                try:   
+                    response = clientSocket.recv(1024)
+                    data_response = pickle.loads(response)
+                    if data_response:
+                        break
+                except timeout:
+                    pass
 
             # Server accept, exit loop 
             if data_response.JOIN_ACCEPT_FLAG:
@@ -74,7 +83,11 @@ def connection():
         sentence = input("Insert text: ")
         clientSocket.send(sentence.encode())
             
-
+"""
+Consider sending a datetime object and when server recieves order it accordingly
+actually try to make select work because this shit aint doing it
+link: https://stackoverflow.com/questions/42222425/python-sockets-multiple-messages-on-same-connection
+"""
             
 
 # Host, port
@@ -87,6 +100,8 @@ PORT = 12000
  
 # Connecting to server
 clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket.settimeout(2) 
+
 clientSocket.connect((HOST, PORT))
 
 connection()
