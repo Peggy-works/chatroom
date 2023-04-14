@@ -1,5 +1,7 @@
 import time, sys, pickle
+from threading import Thread
 from socket import *
+from datetime import datetime
 
 class Message():   
     REPORT_REQUEST_FLAG = None
@@ -32,14 +34,14 @@ class Message():
         self.PAYLOAD_LENGTH = PAYLOAD_LENGTH
         self.PAYLOAD = PAYLOAD
 
-def connection():
+"""def connection():
     message = Message()  
     while True:
-        print("""Please select one of the following options:
+        printPlease select one of the following options:
     1. Get a report of the chatroom from the server.
     2. Request to join the chatroom.
     3. Quit the program.
-    """) 
+     
         
         user_input = input("Your choice: ") 
         if user_input == '1' or user_input == 1:
@@ -81,30 +83,78 @@ def connection():
             #clientSocket.send(sentence.encode())
     while True:
         sentence = input("Insert text: ")
-        clientSocket.send(sentence.encode())
+        clientSocket.send(sentence.encode())"""
             
 """
 Consider sending a datetime object and when server recieves order it accordingly
 actually try to make select work because this shit aint doing it
 link: https://stackoverflow.com/questions/42222425/python-sockets-multiple-messages-on-same-connection
 """
+
+def listen():
+    while True:
+        response = client_socket.recv(1024).decode()
+        print(f'\n {response}')
             
 
 # Host, port
 HOST = 'localhost'
 PORT = 12000 
 
-#user input
-#user_input = None
-#username = None
- 
+# Creating new client socket and connecting via TCP
+client_socket = socket(AF_INET, SOCK_STREAM)
+print(f'Connecting to {HOST} at port: {PORT}')
+client_socket.connect((HOST,PORT))
+
+# Print menu options
+print("""Please select one of the following options:
+    1. Get a report of the chatroom from the server.
+    2. Request to join the chatroom.
+    3. Quit the program.""")
+
+# user input
+user_input = input("Your choice >> ")
+
+# Setting up thread 
+t = Thread(target=listen)
+t.daemon = True
+t.start()
+
+# Creating message object
+message = Message()
+
+if user_input == 1 or user_input == '1':
+    pass
+elif user_input == 2 or user_input == '2':
+    # User input 
+    username = input("Please enter a username: ")
+    
+    # Setting message, pickling, sending
+    message.set(0, 0, 1, 0, 0, 1, 0, 0, 0, 0, username, "", 0, 0) 
+    
+    # Pickling object 
+    #data = pickle.dumps(message) 
+
+    # Sending pickled message object to server
+    client_socket.send(username.encode())
+else:
+    pass
+
+while True:
+    user_input = input(">> ")
+    modified_message = datetime.now().strftime("[%H:%M]") + username + ": " + user_input
+    client_socket.send(modified_message.encode())
+
+
+
+
 # Connecting to server
-clientSocket = socket(AF_INET, SOCK_STREAM)
-clientSocket.settimeout(2) 
+#clientSocket = socket(AF_INET, SOCK_STREAM)  
+#clientSocket.connect((HOST, PORT))
 
-clientSocket.connect((HOST, PORT))
 
-connection()
+
+#connection()
 
 
 
@@ -114,4 +164,4 @@ connection()
     #clientSocket.send(sentence.encode())
     #modifiedSentence = clientSocket.recv(1024)
     #print(f'From server: {modifiedSentence.decode()}')
-clientSocket.close()
+client_socket.close()

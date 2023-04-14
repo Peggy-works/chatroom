@@ -1,5 +1,6 @@
 import time, sys, pickle, time, select
 from socket import *
+from threading import Thread
 
 class Message():   
     REPORT_REQUEST_FLAG = None
@@ -32,7 +33,7 @@ class Message():
         self.PAYLOAD_LENGTH = PAYLOAD_LENGTH
         self.PAYLOAD = PAYLOAD
 
-def handleUser(connection, addr, users, user_count):
+"""def handleUser(connection, addr, users, user_count):
     print("In handleUser")
     message = Message()
     # Reject if 3 active users
@@ -68,45 +69,22 @@ def handleUser(connection, addr, users, user_count):
         else:
             message.set(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 , "", 0, "The server rejects the join request. Another user is using this username")
             data_send = pickle.dumps(message)
-            connection.send(data_send)
+            connection.send(data_send)"""
 
-"""def handleUser(read_list, serverSocket, connectionSocket, users, user_count):
-    print("In handleUser")
-    message = Message()
-    # Reject if 3 active users
-    if user_count == 3:
-        message.set(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "", 0, 'The server rejects the join request')
-        data_send = pickle.dumps(message)
-        connection.send(data_send)
-        #time.sleep(30)
-        #connection.close()
-        return
-    if user_count < 3: 
-        if connectionSocket is not serverSocket:
-            data = connectionSocket.recv(1024)
-            if data:
-                data_response = pickle.loads(data)
-                print(data_response.USERNAME)
-        #response = connection.recv(1024)
-        #data = pickle.loads(response)
-        #print(data.USERNAME)
-        #result = users.get(data.USERNAME)
-        if not result:
-            users[data.USERNAME] = {
-                "IP": addr[0],
-                "PORT": addr[1],
-                "SOCKET": connectionSocket
-            }
-            user_count += 1
-            username.append(data.USERNAME)
-            message.set(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, data.USERNAME, "", 0, "USER has entered")
-            data_send = pickle.dumps(message)
-            #connection.send(data_send)
-        else:
-            message.set(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 , "", 0, "The server rejects the join request. Another user is using this username")
-            data_send = pickle.dumps(message)
-            #connection.send(data_send
-    #print(users)"""
+def watch(client_socket):
+    while True:
+        try:
+            response = client_socket.recv(1024).decode()
+            if response:
+                print(response.split())
+        except Exception as e:
+            print(f'Error: {e}')
+        
+        #response = response.split()
+        #print(response)
+
+
+         
 
 HOST = 'localhost'
 PORT = 12000  
@@ -116,13 +94,13 @@ username = []
 user_count = 0
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
-serverSocket.settimeout(2)
+#serverSocket.settimeout(2)
 serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 serverSocket.bind((HOST, PORT))
-serverSocket.listen(3)
+serverSocket.listen(10)
 
 # Sockets we will eventually write to 
-socket_list = []
+socket_list = set()
 connectionSocket = None
 addr = None
 
@@ -132,47 +110,23 @@ print("The server is ready to recieve")
 #handleUser(connectionSocket, addr, users, user_count)
 while True:  
     # Accepting new user connection and checking if username is taken
-    try:
-        connectionSocket, addr = serverSocket.accept()
-    except timeout:
-        pass
+    client_socket, addr = serverSocket.accept() 
+    print(f'{addr} has connected!')
 
-    if connectionSocket and connectionSocket not in socket_list:
-        print(connectionSocket)
-        connectionSocket.settimeout(5)
-        socket_list.append(connectionSocket) 
-        print(f'connectionSocket has something') 
-        handleUser(connectionSocket, addr, users, user_count)
+    #if connectionSocket and connectionSocket not in socket_list: 
+    socket_list.add(client_socket)  
+    t = Thread(target=watch, args=(client_socket, ))
+    t.daemon = True
+    t.start()
+        #handleUser(connectionSocket, addr, users, user_count)
 
-    for sock in socket_list:
+    """for sock in socket_list:
         try:
             data = sock.recv(1024).decode()
             if data:
                 print(data)
         except timeout:
-            pass
-        
-    # if condition for 1,2,3 users
-    """if len(users) == 1:
-        result = users[username[0]]['SOCKET'].recv(1024).decode()
-        #quit()
-        if result:
-            print(result)
-    elif len(users) == 2:  
-        result = users[username[0]]['SOCKET'].recv(1024).decode() 
-        result2 = users[username[1]]['SOCKET'].recv(1024).decode()
-        if result:
-            print(result)
-        if result2:
-            print(result2)
-    elif len(users) == 3:
-        pass"""
-    """for user in users: 
-        #print(users[user]['IP'])
-        #print(users[user]['PORT'])
-        #print(users[user]['Socket'])
-        resp_message = users[user]['SOCKET'].recv(1024).decode()
-        print(resp_message)"""
+            pass"""
     #print(users)
     #print(len(users))
     #print(users)
